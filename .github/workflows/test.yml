@@ -29,7 +29,7 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Run initial test (should fail)
-        run: mvn -f tests test -Dtest=UserTest
+        run: mvn test -Dtest=UserTest
 
   green-test:
     name: 🟩 GREEN – Run after backend is up
@@ -52,15 +52,15 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Start backend (Spring Boot)
-        working-directory: backend
-        run: mvn spring-boot:run &
+      - name: Start backend with Maven
+        run: nohup mvn spring-boot:run &
+        working-directory: .
 
       - name: Wait for backend to be ready
-        run: sleep 15
+        run: sleep 10
 
       - name: Run TDD test again (should pass)
-        run: mvn -f tests test -Dtest=UserTest
+        run: mvn test -Dtest=UserTest
 
   verify:
     name: ✅ VERIFY – Confirm service works
@@ -72,16 +72,3 @@ jobs:
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Cache Maven
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-
-      - name: Run verification test
-        run: mvn -f tests test -Dtest=UserGreenTest

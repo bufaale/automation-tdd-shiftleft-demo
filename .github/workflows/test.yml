@@ -6,7 +6,8 @@ on:
   pull_request:
 
 jobs:
-  test:
+  red:
+    name: 🟥 RED Stage – Test before backend
     runs-on: ubuntu-latest
 
     steps:
@@ -19,26 +20,65 @@ jobs:
           java-version: 17
           distribution: 'temurin'
 
-      - name: 🟥 Run RED test (expected to fail)
+      - name: 🧪 Run test (expected to fail)
         run: mvn test -Dtest=UserTest || true
 
-      - name: 🚀 Start backend with Docker Compose
-        run: docker compose up -d --build
+  green:
+    name: 🟩 GREEN Stage – Test with backend
+    needs: red
+    runs-on: ubuntu-latest
+    services:
+      backend:
+        image: backend:latest
+        build:
+          context: ./backend
+        ports:
+          - 8080:8080
+        options: >-
+          --health-cmd="curl -f http://localhost:8080/users || exit 1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
-      - name: ⏱ Wait for backend to be ready
-        run: |
-          echo "Waiting for backend..."
-          for i in {1..10}; do
-            nc -z localhost 8080 && echo "✅ Backend is up!" && break
-            echo "⏳ Still waiting..."
-            sleep 3
-          done
+    steps:
+      - name: ✅ Checkout repo
+        uses: actions/checkout@v4
 
-      - name: 🟩 Run GREEN test
+      - name: ☕ Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: 'temurin'
+
+      - name: 🧪 Run test (expected to pass)
         run: mvn test -Dtest=UserGreenTest
 
-      - name: ✅ VERIFY backend behavior
-        run: mvn test -Dtest=UserGreenTest
+  verify:
+    name: ✅ VERIFY Stage – Extra validations
+    needs: green
+    runs-on: ubuntu-latest
+    services:
+      backend:
+        image: backend:latest
+        build:
+          context: ./backend
+        ports:
+          - 8080:8080
+        options: >-
+          --health-cmd="curl -f http://localhost:8080/users || exit 1"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
-      - name: 📦 Build backend if tests pass
-        run: mvn clean package
+    steps:
+      - name: ✅ Checkout repo
+        uses: actions/checkout@v4
+
+      - name: ☕ Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: 'temurin'
+
+      - name: 🔍 Run final verification tests
+        run: mvn test -Dtest=UserGreenTest

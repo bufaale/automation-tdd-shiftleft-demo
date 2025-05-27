@@ -1,16 +1,18 @@
-# Dockerfile (en la raíz del proyecto)
+# Dockerfile
+
 FROM eclipse-temurin:17-jdk-alpine
 
 WORKDIR /app
 
-# Copiar el pom.xml desde la raíz
+# Copiar el pom.xml desde la raíz del proyecto
 COPY pom.xml .
 
-# Copiar el código fuente desde backend/src
+# Copiar el código fuente del backend
 COPY backend/src ./src
 
-# Instalar Maven y construir
-RUN apk add --no-cache maven && mvn clean package -DskipTests
+# Instalar Maven y construir el proyecto
+RUN apk add --no-cache maven \
+  && mvn clean package -DskipTests
 
-# Ejecutar JAR (ajustá el nombre si no es backend-1.0.0.jar)
-CMD ["java", "-jar", "target/backend-1.0.0.jar"]
+# Ejecutar el JAR generado (ajustá el nombre si llegara a cambiar)
+CMD ["java", "-jar", "target/automation-tdd-shiftleft-demo-1.0.0.jar"]

@@ -4,7 +4,8 @@ This project demonstrates how to apply **Test-Driven Development (TDD)** and **S
 
 ## 🔁 Pipeline Workflow (GitHub Actions)
 
-![CI](https://github.com/your-user-name/automation-tdd-shiftleft-demo/actions/workflows/test.yml/badge.svg)
+[![CI](https://github.com/bufaale/automation-tdd-shiftleft-demo/actions/workflows/test.yml/badge.svg)](https://github.com/bufaale/automation-tdd-shiftleft-demo/actions/workflows/test.yml)
+
 
 ### 🔄 Stages:
 

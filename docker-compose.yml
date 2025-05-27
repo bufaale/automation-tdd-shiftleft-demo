@@ -3,7 +3,6 @@ version: '3.8'
 services:
   backend:
     build:
-      context: .
+      context: ./backend
     ports:
       - "8080:8080"
-    container_name: tdd-backend

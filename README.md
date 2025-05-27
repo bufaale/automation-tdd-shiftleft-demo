@@ -12,7 +12,10 @@ This project demonstrates how to apply **Test-Driven Development (TDD)** and **S
 2. 🟥 **Run test before backend is up (expected to fail)** — *TDD Red stage*
 3. 🚀 **Start the backend service using Docker Compose**
 4. 🟩 **Run test again (now it should pass)** — *TDD Green stage*
-5. 🧪 **Run additional assertions (optional)*
+5. 🧪 **Run additional assertions to verify service status** — *Post-Green verify*
+6. 📦 **Build backend artifact only if all tests pass**
+
+> This pipeline simulates the TDD cycle (Red ➝ Green ➝ Refactor) and validates the idea of **“testing before coding”**.
 
 ---
 
@@ -34,7 +37,7 @@ cd automation-tdd-shiftleft-demo
 3. Run the app with Docker:
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 4. Visit the endpoint (if needed):
@@ -54,6 +57,7 @@ http://localhost:8080/users
 │   └── pom.xml
 ├── tests/
 │   └── src/UserTest.java
+│   └── src/UserGreenTest.java
 ├── .github/workflows/test.yml
 ├── Dockerfile
 ├── docker-compose.yml
@@ -67,7 +71,8 @@ http://localhost:8080/users
 - Java 17
 - Spring Boot 3.5
 - JUnit 5
-- Maven
+- RestAssured
+- Maven Wrapper
 - GitHub Actions (CI)
 - Docker & Docker Compose
 
@@ -78,5 +83,6 @@ http://localhost:8080/users
 This is a real-world demo of how a QA/SDET can:
 
 - Shift testing left in the SDLC
-- Apply TDD for automation flows
+- Apply TDD for backend automation flows
 - Contribute meaningful CI pipelines from day one
+- Use fail-first testing strategies to validate dev readiness

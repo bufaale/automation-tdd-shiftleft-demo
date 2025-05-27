@@ -32,6 +32,9 @@ jobs:
         continue-on-error: true
         run: ./mvnw -f tests test -Dtest=UserTest
 
+      - name: Build backend JAR
+        run: ./mvnw -f backend clean package -DskipTests
+
       # --- GREEN: start backend in Docker ---
       - name: Start backend service
         run: docker compose up -d --build

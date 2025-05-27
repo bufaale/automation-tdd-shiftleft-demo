@@ -20,6 +20,9 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Set up Maven
+        uses: s4u/setup-maven-action@v1.8.0
+
       - name: Cache Maven packages
         uses: actions/cache@v3
         with:
@@ -30,10 +33,10 @@ jobs:
       # --- RED: run test BEFORE backend is running ---
       - name: Run initial test (should fail)
         continue-on-error: true
-        run: ./mvnw -f tests test -Dtest=UserTest
+        run: mvn test -Dtest=UserTest
 
       - name: Build backend JAR
-        run: ./mvnw -f backend clean package -DskipTests
+        run: mvn clean package -DskipTests
 
       # --- GREEN: start backend in Docker ---
       - name: Start backend service
@@ -42,14 +45,14 @@ jobs:
       - name: Wait for backend to be ready
         run: sleep 10
 
-      # --- GREEN: run test again, should now PASS ---
+      # --- GREEN: run test again (should now pass) ---
       - name: Run main TDD test again (should pass)
-        run: ./mvnw -f tests test -Dtest=UserTest
+        run: mvn test -Dtest=UserTest
 
       # --- VERIFY: run final test to confirm service health ---
       - name: Run verification test
-        run: ./mvnw -f tests test -Dtest=UserGreenTest
+        run: mvn test -Dtest=UserGreenTest
 
-      # --- Optional package stage if all tests passed ---
-      - name: Package backend
-        run: ./mvnw -f backend clean package -DskipTests
+      # --- Optional packaging (if needed again) ---
+      - name: Package backend again
+        run: mvn clean package -DskipTests

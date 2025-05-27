@@ -1,4 +1,4 @@
-package src;
+package com.portfolio.backend;
 
 import org.junit.jupiter.api.Test;
 import java.net.HttpURLConnection;

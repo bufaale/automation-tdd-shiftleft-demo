@@ -1,0 +1,52 @@
+name: TDD + Shift Left Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  tdd-shiftleft:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      # --- RED: run test BEFORE backend is running ---
+      - name: Run initial test (should fail)
+        continue-on-error: true
+        run: ./mvnw -f tests test -Dtest=UserTest
+
+      # --- GREEN: start backend in Docker ---
+      - name: Start backend service
+        run: docker-compose up -d --build
+
+      - name: Wait for backend to be ready
+        run: sleep 10
+
+      # --- GREEN: run test again, should now PASS ---
+      - name: Run main TDD test again (should pass)
+        run: ./mvnw -f tests test -Dtest=UserTest
+
+      # --- VERIFY: run final test to confirm service health ---
+      - name: Run verification test
+        run: ./mvnw -f tests test -Dtest=UserGreenTest
+
+      # --- Optional package stage if all tests passed ---
+      - name: Package backend
+        run: ./mvnw -f backend clean package -DskipTests

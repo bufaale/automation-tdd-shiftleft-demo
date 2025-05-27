@@ -1,63 +1,82 @@
-# 🧪 automation-tdd-shiftleft-demo
+# 🧪 TDD + Shift Left Demo
 
-This project demonstrates how a QA Automation Engineer can apply **TDD (Test-Driven Development)** and **Shift Left Testing** principles using a real-world pipeline.
+This project demonstrates how to apply **Test-Driven Development (TDD)** and **Shift Left testing** as a QA Automation Engineer by integrating tests *before* the backend service is available.
 
-It simulates a fail-first scenario where a test is executed before the backend feature is implemented — proving that tests guide development rather than follow it.
+## 🔁 Pipeline Workflow (GitHub Actions)
+
+![CI](https://github.com/your-user-name/automation-tdd-shiftleft-demo/actions/workflows/test.yml/badge.svg)
+
+### 🔄 Stages:
+
+1. ✅ **Checkout + Set up JDK 17**
+2. 🟥 **Run test before backend is up (expected to fail)** — *TDD Red stage*
+3. 🚀 **Start the backend service using Docker Compose**
+4. 🟩 **Run test again (now it should pass)** — *TDD Green stage*
+5. 🧪 **Run additional assertions (optional)*
 
 ---
 
-## 🔍 What This Project Shows
+## ▶️ How to run locally
 
-- ✅ Test-first development (TDD) from QA perspective
-- 📦 CI pipeline that runs the test before and after backend deployment
-- 🧪 Simple test validates a `POST /users` endpoint
-- 💥 The test fails first, then passes once the feature is available
-
----
-
-## 📁 Structure
+1. Clone the repository:
 
 ```bash
-├── backend/                  # Simple REST API (Java or Node.js)
-├── tests/                    # API tests (RestAssured or Newman)
-├── .github/workflows/       # GitHub Actions CI pipeline
-│   └── tdd.yml
-├── README.md
+git clone https://github.com/your-user-name/automation-tdd-shiftleft-demo.git
+cd automation-tdd-shiftleft-demo
+```
+
+2. Run tests:
+
+```bash
+./mvnw clean test
+```
+
+3. Run the app with Docker:
+
+```bash
+docker-compose up --build
+```
+
+4. Visit the endpoint (if needed):
+
+```
+http://localhost:8080/users
 ```
 
 ---
 
-## 🚀 How the Pipeline Works
+## 📁 Project Structure
 
-1. **Run tests before the backend is live** → test fails ✅
-2. **Deploy the backend service** (e.g., Spring Boot / Express)
-3. **Re-run the test** → test now passes ✅
-
-> This mimics how automation can lead development, not lag behind it.
-
----
-
-## 🧱 Technologies
-
-- Java 17 / Gradle or Node.js
-- RestAssured or Postman CLI (Newman)
-- GitHub Actions CI
-- Docker / docker-compose
+```
+.
+├── backend/
+│   ├── src/main/java/...UserController.java
+│   └── pom.xml
+├── tests/
+│   └── src/UserTest.java
+├── .github/workflows/test.yml
+├── Dockerfile
+├── docker-compose.yml
+└── README.md
+```
 
 ---
 
-## 🧠 Why This Project Matters
+## 🛠 Tech Stack
 
-> In real teams, testers often wait for features. But in modern QA:
-
-- **You define the behavior first** (test/data/spec)
-- **Dev implements to make the test pass**
-- This is TDD applied from QA — and it’s Shift Left in action.
+- Java 17
+- Spring Boot 3.5
+- JUnit 5
+- Maven
+- GitHub Actions (CI)
+- Docker & Docker Compose
 
 ---
 
-## 👤 Author
+## 📌 Why this project?
 
-**Alejandro Bufarini**  
-Senior QA Automation Engineer  
-[GitHub Portfolio](https://github.com/alejandrobufarini)
+This is a real-world demo of how a QA/SDET can:
+
+- Shift testing left in the SDLC
+- Apply TDD for automation flows
+- Contribute meaningful CI pipelines from day one

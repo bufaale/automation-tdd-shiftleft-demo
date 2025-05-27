@@ -32,7 +32,7 @@ jobs:
         run: mvn test -Dtest=UserTest
 
   green-test:
-    name: 🟩 GREEN – Run test after backend is up
+    name: 🟩 GREEN – Run after backend is up
     runs-on: ubuntu-latest
     needs: red-test
     steps:
@@ -52,11 +52,8 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Build backend JAR
-        run: mvn clean package -DskipTests
-
-      - name: Start backend service
-        run: docker compose up -d --build
+      - name: Start backend with Maven
+        run: nohup mvn spring-boot:run &
 
       - name: Wait for backend to be ready
         run: sleep 10

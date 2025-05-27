@@ -29,7 +29,7 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Run initial test (should fail)
-        run: mvn test -Dtest=UserTest
+        run: mvn -f tests test -Dtest=UserTest
 
   green-test:
     name: 🟩 GREEN – Run after backend is up
@@ -52,17 +52,15 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
 
-      - name: Build backend JAR
-        run: mvn clean package -DskipTests
-
-      - name: Start backend service
-        run: docker compose up -d --build
+      - name: Start backend (Spring Boot)
+        working-directory: backend
+        run: mvn spring-boot:run &
 
       - name: Wait for backend to be ready
-        run: sleep 10
+        run: sleep 15
 
       - name: Run TDD test again (should pass)
-        run: mvn test -Dtest=UserTest
+        run: mvn -f tests test -Dtest=UserTest
 
   verify:
     name: ✅ VERIFY – Confirm service works
@@ -86,4 +84,4 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Run verification test
-        run: mvn test -Dtest=UserGreenTest
+        run: mvn -f tests test -Dtest=UserGreenTest

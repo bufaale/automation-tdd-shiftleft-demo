@@ -3,7 +3,7 @@ FROM eclipse-temurin:17-jdk-alpine
 WORKDIR /app
 
 COPY pom.xml .
-COPY backend/src ./src
+COPY src ./src
 
 RUN apk add --no-cache maven && mvn clean package -DskipTests
 

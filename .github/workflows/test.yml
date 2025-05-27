@@ -1,74 +1,73 @@
-name: TDD + Shift Left Pipeline
+name: TDD + Shift Left Demo
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
+    branches: [ main ]
 
 jobs:
-  red:
-    name: 🟥 RED Stage – Test before backend
+  red-test:
+    name: 🟥 RED – Run test before backend
     runs-on: ubuntu-latest
-
+    continue-on-error: true
     steps:
-      - name: ✅ Checkout repo
-        uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-      - name: ☕ Set up JDK 17
-        uses: actions/setup-java@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
         with:
-          java-version: 17
           distribution: 'temurin'
+          java-version: '17'
 
-      - name: 🧪 Run test (expected to fail)
-        run: mvn test -Dtest=UserTest || true
+      - name: Cache Maven
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
 
-  green:
-    name: 🟩 GREEN Stage – Test with backend
-    needs: red
+      - name: Run initial test (should fail)
+        run: mvn test -Dtest=UserTest
+
+  green-test:
+    name: 🟩 GREEN – Run test after backend is up
     runs-on: ubuntu-latest
-    services:
-      backend:
-        image: backend:latest
-        build:
-          context: ./backend
-        ports:
-          - 8080:8080
-        options: >-
-          --health-cmd="curl -f http://localhost:8080/users || exit 1"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-
+    needs: red-test
     steps:
-      - name: ✅ Checkout repo
-        uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-      - name: ☕ Set up JDK 17
-        uses: actions/setup-java@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
         with:
-          java-version: 17
           distribution: 'temurin'
+          java-version: '17'
 
-      - name: 🧪 Run test (expected to pass)
-        run: mvn test -Dtest=UserGreenTest
+      - name: Cache Maven
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Build backend JAR
+        run: mvn clean package -DskipTests
+
+      - name: Start backend service
+        run: docker compose up -d --build
+
+      - name: Wait for backend to be ready
+        run: sleep 10
+
+      - name: Run TDD test again (should pass)
+        run: mvn test -Dtest=UserTest
 
   verify:
     name: ✅ VERIFY Stage – Extra validations
-    needs: green
+    needs: green-test
     runs-on: ubuntu-latest
-    services:
-      backend:
-        image: backend:latest
-        build:
-          context: ./backend
-        ports:
-          - 8080:8080
-        options: >-
-          --health-cmd="curl -f http://localhost:8080/users || exit 1"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
 
     steps:
       - name: ✅ Checkout repo
@@ -80,5 +79,12 @@ jobs:
           java-version: 17
           distribution: 'temurin'
 
+      - name: 🚀 Start backend service
+        run: nohup mvn spring-boot:run &
+
+      - name: ⏱️ Wait for backend to be ready
+        run: sleep 10
+
       - name: 🔍 Run final verification tests
         run: mvn test -Dtest=UserGreenTest
+

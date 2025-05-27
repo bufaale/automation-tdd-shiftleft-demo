@@ -34,7 +34,7 @@ jobs:
 
       # --- GREEN: start backend in Docker ---
       - name: Start backend service
-        run: docker-compose up -d --build
+        run: docker compose up -d --build
 
       - name: Wait for backend to be ready
         run: sleep 10
